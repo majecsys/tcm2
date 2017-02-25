@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SecondViewController : UIViewController
-
+@interface SecondViewController : UIViewController <UIActionSheetDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate>{
+    UIActionSheet *myActionSheet;
+    UIImagePickerController* picker;
+}
+@property (retain, nonatomic) UIActionSheet *myActionSheet;
+@property (nonatomic, retain) UIImagePickerController *picker;
 @end

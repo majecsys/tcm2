@@ -8,6 +8,17 @@
 
 #import <UIKit/UIKit.h>
 
-@interface FirstViewController : UIViewController
+@interface FirstViewController : UIViewController 
+{
+}
+@property (weak, nonatomic) IBOutlet UILabel *lblName;
 
+@property (weak, nonatomic) IBOutlet UILabel *lblDate;
+@property (weak, nonatomic)  NSString *todaysImagePath;
+@property (weak, nonatomic) IBOutlet  UIImageView *todaysImage;
+@property (strong,nonatomic) NSString *makersName;
+
+- (void)setTodaysValues:(NSString *)name pathToImage:(NSString*)path;
+- (void)displayImage:(NSString *)imgPath;
 @end
+
