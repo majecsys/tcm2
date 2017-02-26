@@ -169,33 +169,25 @@
     NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:(NSURLRequestReloadIgnoringLocalCacheData) timeoutInterval:12.0];
     AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
     operation.responseSerializer = [AFJSONResponseSerializer serializer];
- 
-    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-
-        if ([responseObject  isEqual: @"No Change"]) {
-        }
-        else {
-        
-        
-        NSDictionary *results = [responseObject valueForKeyPath:@"newCostumeElements"];
-        arryElements = [results valueForKey:@"dateuploaded"];
- //       NSLog(@"The arryElements was %@",arryElements);
-        BOOL hasNewData = NO;        
-        if (arryElements.count > 0) {
-            hasNewData = YES;            
-        }
-        else {
-            hasNewData = NO;
+        [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+            
+            NSDictionary *results = [responseObject valueForKeyPath:@"newCostumeElements"];
+            arryElements = [results valueForKey:@"dateuploaded"];
+        //       NSLog(@"The arryElements was %@",arryElements);
+            BOOL hasNewData = NO;        
+            if (arryElements.count > 0) {
+                hasNewData = YES;            
+            }
+            else {
+                hasNewData = NO;
             }
             [self updateLocalData:hasNewData withThisData:responseObject];
-        
             NSLog(@"in setCompletionBlockWithSuccess %@",results);
         }
-        }
         failure:^(AFHTTPRequestOperation *operation, NSError *error){
-            NSLog(@"in ******** failure: %@", error);
-                         [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-        }];
+                NSLog(@"in ******** failure: %@", error);
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
+            }];
 //    failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id json){
 //        //this would show no change if there was nothing new
 //    [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
@@ -394,11 +386,12 @@
 //    AFHTTPRequestOperation *clientOperation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
 //    clientOperation.responseSerializer = [AFImageResponseSerializer new];
     NSArray *batchOperations = [AFURLConnectionOperation batchOfRequestOperations:operationsArray
-                                                                    progressBlock:NULL
-                                                                  completionBlock:^(NSArray *operationsArray) {
-[[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-                                                                  }];
-                                
+                progressBlock:NULL
+                completionBlock:^(NSArray *operationsArray) {
+                  NSLog(@"Entering NSNotificationCenter");
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
+                              }];
+    
 //                                             AFHTTPClient *client = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:@""]];//
 //    [client  enqueueBatchOfHTTPRequestOperations:operationsArray
 //    progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations)
