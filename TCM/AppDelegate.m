@@ -182,7 +182,7 @@
                 hasNewData = NO;
             }
             [self updateLocalData:hasNewData withThisData:responseObject];
-            NSLog(@"in setCompletionBlockWithSuccess %@",results);
+         //   NSLog(@"in setCompletionBlockWithSuccess %@",results);
         }
         failure:^(AFHTTPRequestOperation *operation, NSError *error){
                 NSLog(@"in ******** failure: %@", error);
@@ -368,34 +368,26 @@
                         NSLog(@"Image error: %@", error);
         }];
         [operationsArray addObject:getOperation];
-        
-//        AFImageRequestOperation *getOperation = [AFImageRequestOperation imageRequestOperationWithRequest:request  imageProcessingBlock:nil
-//
-//          success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
-//              [self writeImagesInInitialImages:image pathOfFile:valueOfPath];
-////              NSLog(@"value Of Path valueOFPath ID %@",valueOfPath);
-//          }
-//          failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
-//              NSLog(@"Error from downloadimages is %@",error);
-//          }];        
-//        [operationsArray addObject:getOperation];
     }
+    
+    NSArray *batchOperations = [AFURLConnectionOperation batchOfRequestOperations:operationsArray
+                                                                    progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations)
+                                {
+                                    if(numberOfFinishedOperations == totalNumberOfOperations)
+                                    {
+                                        [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
+                                    }
+                                }
+                              completionBlock:^(NSArray *operationsArray) {
+                                  NSLog(@"Entering NSNotificationCenter");
+                                  [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
+                              }];
+    [[NSOperationQueue mainQueue] addOperations:batchOperations waitUntilFinished:NO];
 
     
 //    AFHTTPRequestOperation *clientOperation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
 //    clientOperation.responseSerializer = [AFImageResponseSerializer new];
-    NSArray *batchOperations = [AFURLConnectionOperation batchOfRequestOperations:operationsArray
-                progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations)
-                                {
-                                    if(numberOfFinishedOperations == totalNumberOfOperations)
-                                       {
-                                           [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-                                       }
-                                }
-                completionBlock:^(NSArray *operationsArray) {
-                  NSLog(@"Entering NSNotificationCenter");
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-                              }];
+
     
 //                                             AFHTTPClient *client = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:@""]];//
 //    [client  enqueueBatchOfHTTPRequestOperations:operationsArray
