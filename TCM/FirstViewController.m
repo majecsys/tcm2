@@ -7,7 +7,7 @@
 //
 
 #import "FirstViewController.h"
-
+#import "AFNetworking.h"
 
 @interface FirstViewController ()
 @end
@@ -61,6 +61,25 @@
 //     NSLog(@"The URL was %@",url);
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     
+    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    operation.responseSerializer = [AFJSONResponseSerializer serializer];
+    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id json) {
+        NSArray *cotdElementsArray = (NSArray *)[json valueForKeyPath:@"cotdElements"];
+        
+        int ndx;
+        for (ndx = 0; ndx < [cotdElementsArray count]; ndx++) {
+            NSDictionary *cotdDict = (NSDictionary *)[cotdElementsArray objectAtIndex:ndx];
+            self.makersName = [cotdDict valueForKey:@"makersName"];
+            self.todaysImagePath = [cotdDict valueForKey:@"fullPath"];
+            [self setTodaysValues:self.makersName pathToImage:self.todaysImagePath];
+        }
+        NSLog(@"in setCompletionBlockWithSuccess %@",json);
+    }
+                                     failure:^(AFHTTPRequestOperation *operation, NSError *error){
+                                         NSLog(@"in ******** failure: %@", error);
+
+                                     }];
+    
     
 //    AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request    
 //        success:^(NSURLRequest *request, NSHTTPURLResponse *response, id json) { 
@@ -78,9 +97,9 @@
 //        NSLog(@"The error was %@",error);
 //        }];
 //    
-//    [operation start];
-//    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] intiWithRequest:request];
-//    operation.responseSerializer = [AFJSONResponseSerializer serializer];
+    [operation start];
+    AFHTTPRequestOperation *peration = [[AFHTTPRequestOperation alloc]  initWithRequest:request];
+    peration.responseSerializer = [AFJSONResponseSerializer serializer];
 }
 
 - (void)viewDidUnload

@@ -93,7 +93,7 @@
         id anObject;
         
         while ((anObject = [enumerator nextObject])) {
-         //   NSLog(@"initial imgs: %@",[anObject lastPathComponent]);
+        //   NSLog(@"initial imgs: %@",[anObject lastPathComponent]);
             [self copyFileNamed:[anObject lastPathComponent] intoDocumentsSubfolder:@"initialimages"];
         }
     }
@@ -360,14 +360,13 @@
         NSURLRequest *request = [NSURLRequest requestWithURL:url];
         
         AFHTTPRequestOperation *getOperation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-                                                getOperation.responseSerializer = [AFImageResponseSerializer serializer];
-                                                [getOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-                                                            [self writeImagesInInitialImages:responseObject pathOfFile:valueOfPath];
-                                                            NSLog(@"value Of Path valueOFPath ID %@",valueOfPath);
-                                                    }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-           
-                                                            NSLog(@"Image error: %@", error);
-                                                        }];
+        getOperation.responseSerializer = [AFImageResponseSerializer serializer];
+        [getOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+                [self writeImagesInInitialImages:responseObject pathOfFile:valueOfPath];
+                NSLog(@"value Of Path valueOFPath ID %@",valueOfPath);
+                }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                        NSLog(@"Image error: %@", error);
+        }];
         [operationsArray addObject:getOperation];
         
 //        AFImageRequestOperation *getOperation = [AFImageRequestOperation imageRequestOperationWithRequest:request  imageProcessingBlock:nil
@@ -386,7 +385,13 @@
 //    AFHTTPRequestOperation *clientOperation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
 //    clientOperation.responseSerializer = [AFImageResponseSerializer new];
     NSArray *batchOperations = [AFURLConnectionOperation batchOfRequestOperations:operationsArray
-                progressBlock:NULL
+                progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations)
+                                {
+                                    if(numberOfFinishedOperations == totalNumberOfOperations)
+                                       {
+                                           [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
+                                       }
+                                }
                 completionBlock:^(NSArray *operationsArray) {
                   NSLog(@"Entering NSNotificationCenter");
                     [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
