@@ -78,7 +78,7 @@
     UILabel *lblVote = [[UILabel alloc] initWithFrame:btnCount.bounds];	
     [lblVote setTag:1];
     [lblVote setFont:[UIFont systemFontOfSize:12]];
-    lblVote.textAlignment = UITextAlignmentCenter;
+    lblVote.textAlignment = NSTextAlignmentCenter;
     [lblVote setText:@"0"];
     lblVote.textColor = [UIColor whiteColor];
     lblVote.backgroundColor = [UIColor blackColor];

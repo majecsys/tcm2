@@ -24,7 +24,7 @@
 - (void)setTodaysValues:(NSString*)name pathToImage:(NSString*)path
 {
     // create a calendar
-	NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
     NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
     [dateFormat setDateFormat:@"MMM d YYYY"];  
     NSDate *currentDate = [NSDate date];
@@ -73,33 +73,14 @@
             self.todaysImagePath = [cotdDict valueForKey:@"fullPath"];
             [self setTodaysValues:self.makersName pathToImage:self.todaysImagePath];
         }
-        NSLog(@"in setCompletionBlockWithSuccess %@",json);
+     //   NSLog(@"in setCompletionBlockWithSuccess %@",json);
     }
-                                     failure:^(AFHTTPRequestOperation *operation, NSError *error){
-                                         NSLog(@"in ******** failure: %@", error);
-
-                                     }];
-    
-    
-//    AFJSONRequestOperation *operation = [AFJSONRequestOperation JSONRequestOperationWithRequest:request    
-//        success:^(NSURLRequest *request, NSHTTPURLResponse *response, id json) { 
-//            NSArray *cotdElementsArray = (NSArray *)[json valueForKeyPath:@"cotdElements"];
-//            int ndx;
-//            for (ndx = 0; ndx < [cotdElementsArray count] ; ndx++)
-//            {
-//                NSDictionary *cotdDict = (NSDictionary *)[cotdElementsArray objectAtIndex:ndx];
-//                self.makersName = [cotdDict valueForKey:@"makersName"]; 
-//                self.todaysImagePath = [cotdDict valueForKey:@"fullPath"];
-//                [self setTodaysValues:self.makersName pathToImage:self.todaysImagePath];
-//            }
-//        }
-//        failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id json){
-//        NSLog(@"The error was %@",error);
-//        }];
-//    
+     failure:^(AFHTTPRequestOperation *operation, NSError *error){
+         NSLog(@"in ******** failure: %@", error);
+     }];
     [operation start];
-    AFHTTPRequestOperation *peration = [[AFHTTPRequestOperation alloc]  initWithRequest:request];
-    peration.responseSerializer = [AFJSONResponseSerializer serializer];
+    AFHTTPRequestOperation *oPeration = [[AFHTTPRequestOperation alloc]  initWithRequest:request];
+    oPeration.responseSerializer = [AFJSONResponseSerializer serializer];
 }
 
 - (void)viewDidUnload

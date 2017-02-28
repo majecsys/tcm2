@@ -115,27 +115,27 @@
 }
 - (void)copyFileNamed:(NSString *)filename intoDocumentsSubfolder:(NSString *)dirname
 {
-	// First, test for existence.
+    // First, test for existence.
     BOOL success;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error = NULL;
     // set up the directory path name for the subdirectory
     NSString *subdirectory = [self.documentsPath stringByAppendingPathComponent:dirname];
-	
+    
     // set up the full path for the destination file
     NSString *writableFilePath = [subdirectory stringByAppendingPathComponent:filename];
     success = [fileManager fileExistsAtPath:writableFilePath];
-	
+    
     // if the file is already there, just return
     if (success)
-		return;
+        return;
     // The file not exist, so copy it to the documents flder.
     NSString *defaultFilePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:filename];
     success = [fileManager copyItemAtPath:defaultFilePath toPath:writableFilePath error:&error];
     if (!success) {
-		//[self alert:@"Failed to copy resource file"];
-		NSLog(@"Failed to copy file to documents with message '%@'.",error);
-		//NSAssert1(0, @"Failed to copy file to documents with message '%@'.", [error localizedDescription]);
+        //[self alert:@"Failed to copy resource file"];
+        NSLog(@"Failed to copy file to documents with message '%@'.",error);
+        //NSAssert1(0, @"Failed to copy file to documents with message '%@'.", [error localizedDescription]);
     }
 }
 
@@ -165,30 +165,38 @@
     [rs close];
 
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://appaccess:0821mcg@174.143.175.219:9858/TCM/returnLatest.php?ts=%@",[maxDateUploadedinCostumes stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
-//    NSLog(@"URL %@",url);
+    NSLog(@"url %@",url);
     NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:(NSURLRequestReloadIgnoringLocalCacheData) timeoutInterval:12.0];
     AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-    operation.responseSerializer = [AFJSONResponseSerializer serializer];
+    
+        operation.responseSerializer = [AFJSONResponseSerializer serializer];
+        
         [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
             
             NSDictionary *results = [responseObject valueForKeyPath:@"newCostumeElements"];
             arryElements = [results valueForKey:@"dateuploaded"];
-        //       NSLog(@"The arryElements was %@",arryElements);
-            BOOL hasNewData = NO;        
-            if (arryElements.count > 0) {
-                hasNewData = YES;            
+            NSLog(@"The arryElements was %@",arryElements);
+            NSString *NoChange = @"No Change";
+            BOOL hasNewData = NO;
+            if ((arryElements.count > 0) && (![arryElements  containsObject:NoChange])) {
+                hasNewData = YES;
             }
             else {
                 hasNewData = NO;
             }
+            
             [self updateLocalData:hasNewData withThisData:responseObject];
-         //   NSLog(@"in setCompletionBlockWithSuccess %@",results);
+            
+            
+            //   NSLog(@"in setCompletionBlockWithSuccess %@",results);
         }
-        failure:^(AFHTTPRequestOperation *operation, NSError *error){
-                NSLog(@"in ******** failure: %@", error);
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-            }];
-//    failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id json){
+                                         failure:^(AFHTTPRequestOperation *operation, NSError *error){
+                                             NSLog(@"in ******** failure: %@", error);
+                                             [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
+                                         }];
+
+
+    //    failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id json){
 //        //this would show no change if there was nothing new
 //    [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
 //    }];
@@ -198,11 +206,12 @@
 }
 
 - (void) updateLocalData:(BOOL)hasNewData withThisData:(NSString *)json {
-    
+    NSLog(@"jon is %@",json);
     if (hasNewData) {
         [self startUpdateProcess:json];        
     }
     else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
         NSLog(@"nothing changes so figure out whats next %d",hasNewData);
     }
 }
@@ -338,8 +347,7 @@
     int count = [pathToImagearray count];
     NSMutableArray *operationsArray = [NSMutableArray array];
     NSMutableArray *localPathToimageArray = [[NSMutableArray alloc] initWithCapacity:count];
-
-    NSMutableArray *pathToimagesArray = [[NSMutableArray alloc] initWithCapacity:count];
+   // NSMutableArray *pathToimagesArray = [[NSMutableArray alloc] initWithCapacity:count];
 
 
     NSEnumerator *enumerator = [pathToImagearray objectEnumerator];
@@ -363,7 +371,7 @@
         getOperation.responseSerializer = [AFImageResponseSerializer serializer];
         [getOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
                 [self writeImagesInInitialImages:responseObject pathOfFile:valueOfPath];
-                NSLog(@"value Of Path valueOFPath ID %@",valueOfPath);
+           //     NSLog(@"value Of Path valueOFPath ID %@",valueOfPath);
                 }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                         NSLog(@"Image error: %@", error);
         }];
@@ -372,38 +380,17 @@
     
     NSArray *batchOperations = [AFURLConnectionOperation batchOfRequestOperations:operationsArray
                                                                     progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations)
-                                {
-                                    if(numberOfFinishedOperations == totalNumberOfOperations)
-                                    {
-                                        [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-                                    }
-                                }
-                              completionBlock:^(NSArray *operationsArray) {
-                                  NSLog(@"Entering NSNotificationCenter");
-                                  [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-                              }];
+            {
+                if(numberOfFinishedOperations == totalNumberOfOperations)
+                {
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
+                }
+            }
+          completionBlock:^(NSArray *operationsArray) {
+              NSLog(@"Entering NSNotificationCenter");
+              [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
+          }];
     [[NSOperationQueue mainQueue] addOperations:batchOperations waitUntilFinished:NO];
-
-    
-//    AFHTTPRequestOperation *clientOperation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-//    clientOperation.responseSerializer = [AFImageResponseSerializer new];
-
-    
-//                                             AFHTTPClient *client = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:@""]];//
-//    [client  enqueueBatchOfHTTPRequestOperations:operationsArray
-//    progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations)
-//        {
-////            NSLog(@"%d / %d", numberOfFinishedOperations, totalNumberOfOperations);//            
-////            if(numberOfFinishedOperations == totalNumberOfOperations)
-////            {
-//////                [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-////            }
-//        }
-//    completionBlock:^(NSArray *operationsArray)
-//        {
-//            [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-////            NSLog(@"Yikesssssśssssssssssss %@",pathToimagesArray);
-//        }];
    return YES;
 }
 
