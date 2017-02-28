@@ -170,7 +170,6 @@
     AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
     
         operation.responseSerializer = [AFJSONResponseSerializer serializer];
-        
         [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
             
             NSDictionary *results = [responseObject valueForKeyPath:@"newCostumeElements"];
@@ -186,33 +185,24 @@
             }
             
             [self updateLocalData:hasNewData withThisData:responseObject];
-            
-            
             //   NSLog(@"in setCompletionBlockWithSuccess %@",results);
         }
-                                         failure:^(AFHTTPRequestOperation *operation, NSError *error){
-                                             NSLog(@"in ******** failure: %@", error);
-                                             [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-                                         }];
-
-
-    //    failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id json){
-//        //this would show no change if there was nothing new
-//    [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-//    }];
+             failure:^(AFHTTPRequestOperation *operation, NSError *error){
+                 NSLog(@"in ******** failure: %@", error);
+                 [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
+             }];
     
     [operation start];        
     [thisDB close];   
 }
 
 - (void) updateLocalData:(BOOL)hasNewData withThisData:(NSString *)json {
-  //  NSLog(@"json is %@",json);
     if (hasNewData) {
-        [self startUpdateProcess:json];        
+        [self startUpdateProcess:json];
     }
     else {
         [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-      //  NSLog(@"nothing changes so figure out whats next %d",hasNewData);
+        //  NSLog(@"nothing changes so figure out whats next %d",hasNewData);
     }
 }
 
@@ -233,15 +223,7 @@
         NSLog(@"Could not open db.");
     }        
     arryCostumeElements = (NSArray *)[json valueForKey:@"newCostumeElements"];
-    
-//    NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
-//    for(int i=0; i < [arryCostumeElements count] - 1; i += 2)
-//    {
-//        [dictionary setObject:[arryCostumeElements objectAtIndex:i+1] forKey:[arryCostumeElements objectAtIndex: i]];
-//    }
-//    
-//    [self createPathToImagesDictionary:dictionary];
-    
+
     int ndx;
     for (ndx = 0; ndx <  arryCostumeElements.count ; ndx++) {
         dictOfAllReturnedJsonValues = (NSMutableDictionary *)[arryCostumeElements objectAtIndex:ndx];
@@ -283,11 +265,7 @@
 -(NSMutableArray *)createArrayOfImages:(NSString*)json
 {
     arrayOfPaths  = [[NSMutableArray alloc] init];
-    
-    //   NSArray *testArray  = (NSArray *)[json valueForKey:@"newCostumeElements"];
-    
-    
-    
+
     arryCostumeElements = (NSArray *)[json valueForKey:@"newCostumeElements"];
     for (NSDictionary *item in arryCostumeElements)
     {
@@ -311,19 +289,17 @@
         
         [arrayOfPaths addObject:listOfPaths];
     }
-//    NSLog(@"array %@",arrayOfPaths);
     return arrayOfPaths;
-
 }
 
 - (void)createPathToImagesDictionary:(NSMutableArray *) arrayOfJsonValues {
-    int count = [arrayOfJsonValues count];
+    NSInteger count = [arrayOfJsonValues count];
 //    NSLog(@"values in arrayOfJsonValues %@",arrayOfJsonValues);
     NSMutableArray *localArrayOfPaths = [[NSMutableArray alloc] init];
     
     for (NSMutableDictionary *pathElement in arrayOfJsonValues){
             NSMutableDictionary *localDictPathToImages=[[NSMutableDictionary alloc] initWithCapacity:count];
-        if ([[pathElement stringForKey:@"ip_fullpath"] length] != 0 ){
+        if ([[pathElement stringForKey:@"ip_fullpath"] length]!= 0 ){
             [localDictPathToImages setValue:[[pathElement stringForKey:@"ip_fullpath"]substringFromIndex:5] forKey:@"ip_fullpath"];
         }
         if ([[pathElement stringForKey:@"ip_tnpath"] length] != 0 ){
@@ -344,10 +320,10 @@
 
 
 - (BOOL)downloadImages: (NSMutableArray *) pathToImagearray{
-    int count = [pathToImagearray count];
+    NSInteger count = [pathToImagearray count];
     NSMutableArray *operationsArray = [NSMutableArray array];
     NSMutableArray *localPathToimageArray = [[NSMutableArray alloc] initWithCapacity:count];
-    NSMutableArray *pathToimagesArray = [[NSMutableArray alloc] initWithCapacity:count];
+//   NSMutableArray *pathToimagesArray = [[NSMutableArray alloc] initWithCapacity:count];
 
 
     NSEnumerator *enumerator = [pathToImagearray objectEnumerator];
@@ -362,24 +338,23 @@
     id valueOfPath;
 
     while ((valueOfPath = [enumObjectsInlocalPathToimageArray nextObject]) != nil) {
-
+        
         NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://appaccess:0821mcg@174.143.175.219:9858/TCM/%@",valueOfPath]];
-//       NSLog(@"url -- %@",url);
         NSURLRequest *request = [NSURLRequest requestWithURL:url];
         
         AFHTTPRequestOperation *getOperation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
         getOperation.responseSerializer = [AFImageResponseSerializer serializer];
         [getOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-                [self writeImagesInInitialImages:responseObject pathOfFile:valueOfPath];
-          //      NSLog(@"value Of Path valueOFPath ID %@",valueOfPath);
-                }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                        NSLog(@"Image error: %@", error);
+            [self writeImagesInInitialImages:responseObject pathOfFile:valueOfPath];
+            //      NSLog(@"value Of Path valueOFPath ID %@",valueOfPath);
+        }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            NSLog(@"Image error: %@", error);
         }];
         [operationsArray addObject:getOperation];
     }
     
     NSArray *batchOperations = [AFURLConnectionOperation batchOfRequestOperations:operationsArray
-                                                                    progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations)
+                               progressBlock:^(NSUInteger numberOfFinishedOperations, NSUInteger totalNumberOfOperations)
             {
                 if(numberOfFinishedOperations == totalNumberOfOperations)
                 {
@@ -404,21 +379,20 @@
     NSFileManager *fileManager = [NSFileManager defaultManager];
     success = [fileManager fileExistsAtPath:pathToInitialImages isDirectory:&isDir];
     if (!success) {
-        
         if ([self makeDocumentSubdir:@"initialimages"]) {
-                    [fileManager createFileAtPath:[pathToInitialImages stringByAppendingPathComponent:[pof lastPathComponent]] contents:data attributes:nil];
-                } else {
-                    NSLog(@"unable to create initialimages dir");
-                       }
-            } else {
-	                    [fileManager createFileAtPath:[pathToInitialImages stringByAppendingPathComponent:[pof lastPathComponent]] contents:data attributes:nil];
-                    }
+            [fileManager createFileAtPath:[pathToInitialImages stringByAppendingPathComponent:[pof lastPathComponent]] contents:data attributes:nil];
+        } else {
+            NSLog(@"unable to create initialimages dir");
+        }
+    } else {
+        [fileManager createFileAtPath:[pathToInitialImages stringByAppendingPathComponent:[pof lastPathComponent]] contents:data attributes:nil];
+    }
 }
 
 -(NSString*)findDB
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError *error;    
+    NSError *error;
     documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSString *dbPath = [documentsPath stringByAppendingPathComponent:@"TCM.sqlite"];
     BOOL success = [fileManager fileExistsAtPath:dbPath];
@@ -430,10 +404,10 @@
         if (!success) {
             NSLog(@"Failed to create writable DB. Error '%@'.", [error localizedDescription]);
         } else {
-//            NSLog(@"DB copied.");
+            //            NSLog(@"DB copied.");
         }
     }else {
-     //   NSLog(@"DB exists, no need to copy.");
+        //   NSLog(@"DB exists, no need to copy.");
     }
     return dbPath;
 }
