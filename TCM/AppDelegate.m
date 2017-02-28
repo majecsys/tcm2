@@ -165,7 +165,7 @@
     [rs close];
 
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://appaccess:0821mcg@174.143.175.219:9858/TCM/returnLatest.php?ts=%@",[maxDateUploadedinCostumes stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
-    NSLog(@"url %@",url);
+ //  NSLog(@"url %@",url);
     NSURLRequest *request = [NSURLRequest requestWithURL:url cachePolicy:(NSURLRequestReloadIgnoringLocalCacheData) timeoutInterval:12.0];
     AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
     
@@ -175,7 +175,7 @@
             
             NSDictionary *results = [responseObject valueForKeyPath:@"newCostumeElements"];
             arryElements = [results valueForKey:@"dateuploaded"];
-            NSLog(@"The arryElements was %@",arryElements);
+         //   NSLog(@"The arryElements was %@",arryElements);
             NSString *NoChange = @"No Change";
             BOOL hasNewData = NO;
             if ((arryElements.count > 0) && (![arryElements  containsObject:NoChange])) {
@@ -206,13 +206,13 @@
 }
 
 - (void) updateLocalData:(BOOL)hasNewData withThisData:(NSString *)json {
-    NSLog(@"jon is %@",json);
+  //  NSLog(@"json is %@",json);
     if (hasNewData) {
         [self startUpdateProcess:json];        
     }
     else {
         [[NSNotificationCenter defaultCenter] postNotificationName:@"showFirstView" object:self];
-        NSLog(@"nothing changes so figure out whats next %d",hasNewData);
+      //  NSLog(@"nothing changes so figure out whats next %d",hasNewData);
     }
 }
 
@@ -347,7 +347,7 @@
     int count = [pathToImagearray count];
     NSMutableArray *operationsArray = [NSMutableArray array];
     NSMutableArray *localPathToimageArray = [[NSMutableArray alloc] initWithCapacity:count];
-   // NSMutableArray *pathToimagesArray = [[NSMutableArray alloc] initWithCapacity:count];
+    NSMutableArray *pathToimagesArray = [[NSMutableArray alloc] initWithCapacity:count];
 
 
     NSEnumerator *enumerator = [pathToImagearray objectEnumerator];
@@ -371,7 +371,7 @@
         getOperation.responseSerializer = [AFImageResponseSerializer serializer];
         [getOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
                 [self writeImagesInInitialImages:responseObject pathOfFile:valueOfPath];
-           //     NSLog(@"value Of Path valueOFPath ID %@",valueOfPath);
+          //      NSLog(@"value Of Path valueOFPath ID %@",valueOfPath);
                 }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
                         NSLog(@"Image error: %@", error);
         }];

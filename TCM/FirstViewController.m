@@ -58,7 +58,7 @@
     	
     NSString *imgType = @"returnIphoneImg";
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"http://appaccess:0821mcg@174.143.175.219:9858/TCM/returnCOTD.php?imgType=%@",imgType]];
-//     NSLog(@"The URL was %@",url);
+     NSLog(@"The URL was %@",url);
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     
     AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
@@ -73,7 +73,7 @@
             self.todaysImagePath = [cotdDict valueForKey:@"fullPath"];
             [self setTodaysValues:self.makersName pathToImage:self.todaysImagePath];
         }
-     //   NSLog(@"in setCompletionBlockWithSuccess %@",json);
+        NSLog(@"in setCompletionBlockWithSuccess %@",json);
     }
      failure:^(AFHTTPRequestOperation *operation, NSError *error){
          NSLog(@"in ******** failure: %@", error);
